@@ -1,4 +1,4 @@
-package controllers
+package Controllers
 
 func (server *Server) InitializeRoutes() {
 
