@@ -3,35 +3,34 @@ package Database
 import (
 	"log"
 
-	models "github.com/ksw95/OMH_BEx/RESTapi/Models"
-
 	"github.com/jinzhu/gorm"
+	"github.com/ksw95/OMH_BEx/RESTapi/Models"
 )
 
-var countries = []models.Country{}
+var countries = []Models.Country{}
 
-var properties = []models.Property{}
+var properties = []Models.Property{}
 
 func Load(db *gorm.DB) {
-	err := db.Debug().DropTableIfExists(&models.Country{}, &models.Property{}).Error
+	err := db.Debug().DropTableIfExists(&Models.Country{}, &Models.Property{}).Error
 	if err != nil {
 		log.Fatalf("cannot drop table: %v\n", err)
 	}
 
-	err = db.Debug().AutoMigrate(&models.Country{}, &models.Property{}).Error
+	err = db.Debug().AutoMigrate(&Models.Country{}, &Models.Property{}).Error
 	if err != nil {
 		log.Fatalf("cannot migrate table: %v\n", err)
 	}
 
 	for i := range countries {
-		err = db.Debug().Model(&models.Country{}).Create(&countries[i]).Error
+		err = db.Debug().Model(&Models.Country{}).Create(&countries[i]).Error
 		if err != nil {
 			log.Fatalf("cannot seed coments table %v\n", err)
 		}
 	}
 
 	for i := range properties {
-		err = db.Debug().Model(&models.Property{}).Create(&properties[i]).Error
+		err = db.Debug().Model(&Models.Property{}).Create(&properties[i]).Error
 		if err != nil {
 			log.Fatalf("cannot seed coments table %v\n", err)
 		}

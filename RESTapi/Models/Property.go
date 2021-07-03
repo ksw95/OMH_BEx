@@ -13,7 +13,7 @@ type Property struct {
 }
 
 func (property *Property) Sanitize() {
-	p := bluemonday.StrictPolicy
+	p := bluemonday.StrictPolicy()
 	property.Country = strings.Title(strings.ToLower(p.Sanitize(property.Country)))
 	property.Address = strings.Title(strings.ToLower(p.Sanitize(property.Address)))
 }

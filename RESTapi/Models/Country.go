@@ -11,6 +11,6 @@ type Country struct {
 }
 
 func (country *Country) Sanitize() {
-	p := bluemonday.StrictPolicy
+	p := bluemonday.StrictPolicy()
 	country.Country = strings.Title(strings.ToLower(p.Sanitize(country.Country)))
 }
