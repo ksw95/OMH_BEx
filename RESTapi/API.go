@@ -5,7 +5,7 @@ import (
 	"github.com/ksw95/OMH_BEx/RESTapi/Database"
 )
 
-var server := Controllers.Server{}
+var server = Controllers.Server{}
 
 func Start() {
 	server.Initialize()
