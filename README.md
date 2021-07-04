@@ -28,7 +28,7 @@ The REST API Endpoints allows the user to do simple CRUD operations for Property
 Country Endpoints:
 - GET Methods
   - Get All Countries 
-  - Get One Country
+  - Get Single Country
 - POST Method
   - Create New Country
 - PUT Method
@@ -42,6 +42,7 @@ Property Endpoints:
   - Get All Properties (GET)
   - Get Available Properties (GET)
   - Get Properties In Country (GET)
+  - Get Single Property (GET)
 - POST Methods
   - Create New Property (POST)
 - PUT Method
@@ -81,3 +82,33 @@ MYSQL_PORT=<port_no>
 
 ## Testing
 Application was manually tested using Postman.
+Tested the basic CRUD operations, ensuring sanitzation and validation are working and basic error handling via error messages.
+
+Screenshot examples:
+
+Getting all properties information
+![image](https://user-images.githubusercontent.com/73837999/124390104-af9c2200-dd1c-11eb-9e55-7637f7ba8b1a.png)
+
+Posting new property
+![image](https://user-images.githubusercontent.com/73837999/124390302-829c3f00-dd1d-11eb-92b9-efc224b4678e.png)
+
+Getting single country
+![image](https://user-images.githubusercontent.com/73837999/124390323-9ba4f000-dd1d-11eb-8e8c-2c75d196cab7.png)
+
+Updating country information
+![image](https://user-images.githubusercontent.com/73837999/124390338-b11a1a00-dd1d-11eb-8672-d773dabaa293.png)
+
+Deleting country entry
+![image](https://user-images.githubusercontent.com/73837999/124390356-c1ca9000-dd1d-11eb-8114-ba6777d9ead0.png)
+
+Testing error handling via error responses
+![image](https://user-images.githubusercontent.com/73837999/124390391-f0e10180-dd1d-11eb-92ab-fe528db63ce9.png)
+
+Validation testing
+![image](https://user-images.githubusercontent.com/73837999/124390438-37366080-dd1e-11eb-8291-22561cfb3f9e.png)
+
+Sanitization testing
+![image](https://user-images.githubusercontent.com/73837999/124390505-89778180-dd1e-11eb-80aa-fb14081a33c2.png)
+
+
+
