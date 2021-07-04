@@ -21,29 +21,29 @@ var countries = []Models.Country{
 
 var properties = []Models.Property{
 	{
-		Address: "535 Clementi Rd, Singapore 599489",
-		Country: "Singapore",
+		Address:     "535 Clementi Rd, Singapore 599489",
+		Country:     "Singapore",
 		Description: "Ngee Ann Polytechnic",
-		Available: "No",
+		Available:   "No",
 	},
 	{
-		Address: "3151, Commonwealth Avenue, Singapore 129581",
-		Country: "Singapore",
+		Address:     "3151, Commonwealth Avenue, Singapore 129581",
+		Country:     "Singapore",
 		Description: "Commercial unit for rent",
-		Available: "Yes",
+		Available:   "Yes",
 	},
 	{
-		Address: "Sample Test Data 3",
-		Country: "Malaysia",
+		Address:     "Sample Test Data 3",
+		Country:     "Malaysia",
 		Description: "For testing Country Properties display",
-		Available: "Yes",
+		Available:   "Yes",
 	},
 	{
-		Address: "Sample Test Data 4",
-		Country: "Philipines",
+		Address:     "Sample Test Data 4",
+		Country:     "Philipines",
 		Description: "For testing Country properties display,",
-		Available: "No",
-	}
+		Available:   "No",
+	},
 }
 
 func Load(db *gorm.DB) {
