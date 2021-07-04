@@ -9,6 +9,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
+// Builds database source and returns a pointer to the database.
 func GetDb() *gorm.DB {
 	DbDriver := "mysql"
 

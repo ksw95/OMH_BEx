@@ -18,6 +18,7 @@ func init() {
 	}
 }
 
+// Prepares the REST API server by setting server info and database.
 func Start() {
 	server.Initialize()
 	Database.Load(server.Db)

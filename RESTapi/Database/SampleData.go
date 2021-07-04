@@ -46,6 +46,7 @@ var properties = []Models.Property{
 	},
 }
 
+// Drops old tables, migrate new tables and generate sample data into the application.
 func Load(db *gorm.DB) {
 	err := db.Debug().DropTableIfExists(&Models.Country{}, &Models.Property{}).Error
 	if err != nil {

@@ -24,7 +24,7 @@ func (property *Property) Sanitize() {
 	property.Available = strings.Title(strings.ToLower(p.Sanitize(property.Available)))
 }
 
-// Ensure all inputs are valid as required.
+// Ensure all inputs are valid as required and returns error if not.
 func (property *Property) Validate() error {
 	if property.Address == "" {
 		return errors.New("enter the address of the property")

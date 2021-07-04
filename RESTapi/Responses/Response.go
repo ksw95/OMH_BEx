@@ -10,6 +10,7 @@ type ErrorResponse struct {
 	Error string `json:"error"`
 }
 
+// Simple response function.
 func BasicRes(res http.ResponseWriter, statusCode int, data interface{}) {
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(statusCode)
@@ -19,6 +20,7 @@ func BasicRes(res http.ResponseWriter, statusCode int, data interface{}) {
 	}
 }
 
+// Simple error response function.
 func ErrRes(res http.ResponseWriter, statusCode int, err error) {
 	if err != nil {
 		BasicRes(res, statusCode, struct {
