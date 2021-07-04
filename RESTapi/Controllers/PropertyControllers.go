@@ -2,7 +2,6 @@ package Controllers
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -35,7 +34,7 @@ func (server *Server) CreateProperty(res http.ResponseWriter, req *http.Request)
 			err = server.Db.Where("Country = ?", newProperty.Country).Find(&country).Error
 			if err != nil {
 				fmt.Println("Country not found")
-				ErrMsg := errors.New("Country not available for the app. Please add country.")
+				// ErrMsg := errors.New("Country not available for the app. Please add country.")
 				// Create new Country entry
 			}
 
@@ -177,8 +176,8 @@ func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request)
 			err = server.Db.Where("Country = ?", newPropInfo.Country).Find(&country).Error
 			if err != nil {
 				fmt.Println("Country not found")
-				ErrMsg := errors.New("Country not available for the app. Please add country.")
-				// Create new Country entry
+				// ErrMsg := errors.New("Country not available for the app. Please add country.")
+				// Error message
 			}
 		}
 
