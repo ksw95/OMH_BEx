@@ -17,8 +17,10 @@ type Server struct {
 
 func (server *Server) Initialize() {
 
+	// Open database
 	server.Db = Database.GetDb()
 
+	// Set router
 	server.Router = mux.NewRouter().StrictSlash(true)
 
 	// Prepare routes for multiplexer

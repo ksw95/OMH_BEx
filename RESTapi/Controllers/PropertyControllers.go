@@ -87,12 +87,14 @@ func (server *Server) CountryProperties(res http.ResponseWriter, req *http.Reque
 		err = server.Db.Where("ID = ?", cID).Find(&country).Error
 		if err != nil {
 			fmt.Println("Country not found")
+			// Error response
 			return
 		}
 		var properties []Models.Property
 		err = server.Db.Where("Country = ?", country.Country).Find(&properties).Error
 		if err != nil {
 			fmt.Println("Properties not found")
+			// Error response
 			return
 		}
 		// Status response 200 with properties info
@@ -210,7 +212,7 @@ func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request)
 	}
 }
 
-// Used to delete a property entry inside database.
+// Delete a property entry inside database.
 func (server *Server) DeleteProperty(res http.ResponseWriter, req *http.Request) {
 	if req.Header.Get("Content-type") == "application/json" {
 		params := mux.Vars(req)
