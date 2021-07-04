@@ -41,7 +41,6 @@ func (server *Server) CreateProperty(res http.ResponseWriter, req *http.Request)
 				return
 			}
 			// statusCreated
-			return
 		}
 	}
 }
@@ -63,9 +62,10 @@ func (server *Server) AllProperties(res http.ResponseWriter, req *http.Request) 
 func (server *Server) AvailProperties(res http.ResponseWriter, req *http.Request) {
 	if req.Header.Get("Content-type") == "application/json" {
 		var properties []Models.Property
-		err := server.Db.Where("Available = ?", true).Find(&properties).Error
+		err := server.Db.Where("Available = ?", "Yes").Find(&properties).Error
 		if err != nil {
 			fmt.Println("Properties not found")
+			// Error response
 			return
 		}
 		// status response 200 with avail properties info
@@ -73,6 +73,7 @@ func (server *Server) AvailProperties(res http.ResponseWriter, req *http.Request
 }
 
 // Show properties based on specific countries.
+// Takes in country ID and returns info of all properties in said country.
 func (server *Server) CountryProperties(res http.ResponseWriter, req *http.Request) {
 	if req.Header.Get("Content-type") == "application/json" {
 		params := mux.Vars(req)
@@ -99,6 +100,7 @@ func (server *Server) CountryProperties(res http.ResponseWriter, req *http.Reque
 }
 
 // Show a chosen property information.
+// Takes in a property ID and return property info with said ID.
 func (server *Server) ViewProperty(res http.ResponseWriter, req *http.Request) {
 	if req.Header.Get("Content-type") == "application/json" {
 		params := mux.Vars(req)
@@ -114,5 +116,123 @@ func (server *Server) ViewProperty(res http.ResponseWriter, req *http.Request) {
 			fmt.Println("Property not found")
 		}
 		// status response 200 with property info
+	}
+}
+
+// Update an existing property entry.
+// Allows changes to Address, Country, Description and Availiability.
+func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request) {
+	if req.Header.Get("Content-type") == "application/json" {
+		params := mux.Vars(req)
+		pID, err := strconv.Atoi(params["id"])
+		if err != nil {
+			fmt.Println("Invalid input as property ID")
+			// Error response
+			return
+		}
+
+		new := 0
+		var oldPropInfo Models.Property
+		err = server.Db.First(&oldPropInfo, pID).Error
+		if err != nil {
+			fmt.Println("Property does not exist")
+			new = 1
+		}
+
+		var newPropInfo Models.Property
+		reqBody, err := ioutil.ReadAll(req.Body)
+		if err != nil {
+			fmt.Println("Error reading request body")
+			// Error response
+			return
+		}
+
+		err = json.Unmarshal(reqBody, &newPropInfo)
+		if err != nil {
+			fmt.Println("Failed to unmarshal request body")
+			// Error reponse
+			return
+		}
+
+		// Sanitize updated info
+		newPropInfo.Sanitize()
+
+		// Check for changes in country and whether country exists
+		var country Models.Country
+		err = server.Db.Where("Country = ?", newPropInfo.Country).Find(&country).Error
+		if err != nil {
+			fmt.Println("Country not found")
+			// Create new Country entry
+		}
+
+		if new == 1 {
+			// Validate new property inputs
+			err = newPropInfo.Validate()
+			if err != nil {
+				fmt.Println("Invalid input")
+				//error
+				return
+			}
+			result := server.Db.Create(&newPropInfo)
+			if result.Error != nil {
+				fmt.Println("Failed to create new property entry in database")
+				//error
+				return
+			}
+			// statusCreated
+		} else {
+			if newPropInfo.Address != "" {
+				oldPropInfo.Address = newPropInfo.Address
+			}
+			if newPropInfo.Country != "" {
+				oldPropInfo.Country = newPropInfo.Country
+			}
+			if newPropInfo.Description != "" {
+				oldPropInfo.Description = newPropInfo.Description
+			}
+			if newPropInfo.Available != "" {
+				oldPropInfo.Available = newPropInfo.Available
+			}
+			err = oldPropInfo.Validate()
+			if err != nil {
+				fmt.Println("Invalid input")
+				// Error response
+				return
+			}
+			err = server.Db.Save(&oldPropInfo).Error
+			if err != nil {
+				fmt.Println("Failed to update property info")
+				// Error message
+				return
+			}
+		}
+		// Status 200 okay message
+	}
+}
+
+// Used to delete a property entry inside database.
+func (server *Server) DeleteProperty(res http.ResponseWriter, req *http.Request) {
+	if req.Header.Get("Content-type") == "application/json" {
+		params := mux.Vars(req)
+		pID, err := strconv.Atoi(params["id"])
+		if err != nil {
+			fmt.Println("Invalid input as property ID")
+			// Error response
+			return
+		}
+		var propInfo Models.Property
+		err = server.Db.First(&propInfo, pID).Error
+		if err != nil {
+			fmt.Println("Property does not exist")
+			// Error response
+			return
+		}
+		err = server.Db.Delete(&propInfo, pID).Error
+		if err != nil {
+			fmt.Println("Failed to delete property entry")
+			// Error Response
+		}
+
+		// Success response
 	}
 }

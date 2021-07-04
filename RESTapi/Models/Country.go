@@ -8,8 +8,8 @@ import (
 )
 
 type Country struct {
-	ID      uint32 //Auto increment, unique
-	Country string //Primary Key
+	ID      uint32 //Auto increment, Primary key
+	Country string //Unique
 }
 
 // Sanitize and Standardize Country and Address inputs
