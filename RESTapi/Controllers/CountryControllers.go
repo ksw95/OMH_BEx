@@ -130,7 +130,6 @@ func (server *Server) UpdateCountry(res http.ResponseWriter, req *http.Request) 
 		}
 		// status ok
 	}
-
 	// status not found
 }
 

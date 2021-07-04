@@ -2,6 +2,7 @@ package Controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -26,8 +27,19 @@ func (server *Server) CreateProperty(res http.ResponseWriter, req *http.Request)
 				//error
 				return
 			}
-			// Sanitize and Validate
+			// Sanitize inputs
 			newProperty.Sanitize()
+
+			// Check whether input country exists
+			var country Models.Country
+			err = server.Db.Where("Country = ?", newProperty.Country).Find(&country).Error
+			if err != nil {
+				fmt.Println("Country not found")
+				ErrMsg := errors.New("Country not available for the app. Please add country.")
+				// Create new Country entry
+			}
+
+			// Validate inputs
 			err = newProperty.Validate()
 			if err != nil {
 				fmt.Println("Invalid input")
@@ -160,11 +172,14 @@ func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request)
 		newPropInfo.Sanitize()
 
 		// Check for changes in country and whether country exists
-		var country Models.Country
-		err = server.Db.Where("Country = ?", newPropInfo.Country).Find(&country).Error
-		if err != nil {
-			fmt.Println("Country not found")
-			// Create new Country entry
+		if newPropInfo.Country != "" {
+			var country Models.Country
+			err = server.Db.Where("Country = ?", newPropInfo.Country).Find(&country).Error
+			if err != nil {
+				fmt.Println("Country not found")
+				ErrMsg := errors.New("Country not available for the app. Please add country.")
+				// Create new Country entry
+			}
 		}
 
 		if new == 1 {
