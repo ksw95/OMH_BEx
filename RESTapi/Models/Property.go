@@ -22,7 +22,6 @@ func (property *Property) Sanitize() {
 	property.Country = strings.Title(strings.ToLower(p.Sanitize(property.Country)))
 	property.Address = strings.Title(strings.ToLower(p.Sanitize(property.Address)))
 	property.Available = strings.Title(strings.ToLower(p.Sanitize(property.Available)))
-
 }
 
 // Ensure all inputs are valid as required.
