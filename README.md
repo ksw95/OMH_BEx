@@ -3,7 +3,9 @@ This REST API is an application solution for Ohmyhome Backend Engineer Examinati
 
 The problem was to create a REST API is provide "Property" and "Country" endpoints for users to post properties they want to sell or rent out.
 
-The REST API was written using Go Language and the Data Storage uses MySQL.y
+The REST API was written using Go Language and the Data Storage uses MySQL.
+
+Some sample data (Countries and Properties), will be initialized into the database when the application runs.
 
 ## Models
 Property and Country Models design are as shown below:
