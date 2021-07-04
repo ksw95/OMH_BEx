@@ -2,6 +2,7 @@ package Controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/ksw95/OMH_BEx/RESTapi/Models"
+	"github.com/ksw95/OMH_BEx/RESTapi/Responses"
 )
 
 // Create new property entry and store into database.
@@ -17,13 +19,14 @@ func (server *Server) CreateProperty(res http.ResponseWriter, req *http.Request)
 		reqBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			fmt.Println("Failed to read request body")
-			// error
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
+			return
 		} else {
 			newProperty := Models.Property{}
 			err := json.Unmarshal(reqBody, &newProperty)
 			if err != nil {
 				fmt.Println("Failed to unmarshal request body")
-				//error
+				Responses.ErrRes(res, http.StatusInternalServerError, err)
 				return
 			}
 			// Sanitize inputs
@@ -34,24 +37,25 @@ func (server *Server) CreateProperty(res http.ResponseWriter, req *http.Request)
 			err = server.Db.Where("Country = ?", newProperty.Country).Find(&country).Error
 			if err != nil {
 				fmt.Println("Country not found")
-				// ErrMsg := errors.New("Country not available for the app. Please add country.")
-				// Create new Country entry
+				ErrMsg := errors.New("country not available for the app, please add country")
+				Responses.ErrRes(res, http.StatusInternalServerError, ErrMsg)
+				return
 			}
 
 			// Validate inputs
 			err = newProperty.Validate()
 			if err != nil {
 				fmt.Println("Invalid input")
-				//error
+				Responses.ErrRes(res, http.StatusBadRequest, err)
 				return
 			}
 			result := server.Db.Create(&newProperty)
 			if result.Error != nil {
 				fmt.Println("Failed to create new property entry in database")
-				//error
+				Responses.ErrRes(res, http.StatusInternalServerError, err)
 				return
 			}
-			// statusCreated
+			Responses.BasicRes(res, http.StatusCreated, newProperty)
 		}
 	}
 }
@@ -63,9 +67,10 @@ func (server *Server) AllProperties(res http.ResponseWriter, req *http.Request) 
 		err := server.Db.Find(&properties).Error
 		if err != nil {
 			fmt.Println("Properties not found")
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
-		// status response 200 with properties info
+		Responses.BasicRes(res, http.StatusOK, properties)
 	}
 }
 
@@ -76,10 +81,10 @@ func (server *Server) AvailProperties(res http.ResponseWriter, req *http.Request
 		err := server.Db.Where("Available = ?", "Yes").Find(&properties).Error
 		if err != nil {
 			fmt.Println("Properties not found")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
-		// status response 200 with avail properties info
+		Responses.BasicRes(res, http.StatusOK, properties)
 	}
 }
 
@@ -91,24 +96,24 @@ func (server *Server) CountryProperties(res http.ResponseWriter, req *http.Reque
 		cID, err := strconv.Atoi(params["id"])
 		if err != nil {
 			fmt.Println("Invalid input as country ID")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, errors.New("invalid parameters"))
 			return
 		}
 		var country Models.Country
 		err = server.Db.Where("ID = ?", cID).Find(&country).Error
 		if err != nil {
 			fmt.Println("Country not found")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
 		var properties []Models.Property
 		err = server.Db.Where("Country = ?", country.Country).Find(&properties).Error
 		if err != nil {
 			fmt.Println("Properties not found")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
-		// Status response 200 with properties info
+		Responses.BasicRes(res, http.StatusOK, properties)
 	}
 }
 
@@ -120,7 +125,7 @@ func (server *Server) ViewProperty(res http.ResponseWriter, req *http.Request) {
 		pID, err := strconv.Atoi(params["id"])
 		if err != nil {
 			fmt.Println("Invalid input as property ID")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, errors.New("invalid parameters"))
 			return
 		}
 		var property Models.Property
@@ -128,7 +133,7 @@ func (server *Server) ViewProperty(res http.ResponseWriter, req *http.Request) {
 		if err != nil {
 			fmt.Println("Property not found")
 		}
-		// status response 200 with property info
+		Responses.BasicRes(res, http.StatusOK, property)
 	}
 }
 
@@ -140,7 +145,7 @@ func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request)
 		pID, err := strconv.Atoi(params["id"])
 		if err != nil {
 			fmt.Println("Invalid input as property ID")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, errors.New("invalid parameters"))
 			return
 		}
 
@@ -156,14 +161,14 @@ func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request)
 		reqBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			fmt.Println("Error reading request body")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
 
 		err = json.Unmarshal(reqBody, &newPropInfo)
 		if err != nil {
 			fmt.Println("Failed to unmarshal request body")
-			// Error reponse
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
 
@@ -176,8 +181,9 @@ func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request)
 			err = server.Db.Where("Country = ?", newPropInfo.Country).Find(&country).Error
 			if err != nil {
 				fmt.Println("Country not found")
-				// ErrMsg := errors.New("Country not available for the app. Please add country.")
-				// Error message
+				ErrMsg := errors.New("country not available for the app, please add country")
+				Responses.ErrRes(res, http.StatusInternalServerError, ErrMsg)
+				return
 			}
 		}
 
@@ -186,16 +192,16 @@ func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request)
 			err = newPropInfo.Validate()
 			if err != nil {
 				fmt.Println("Invalid input")
-				//error
+				Responses.ErrRes(res, http.StatusBadRequest, errors.New("invalid paramters"))
 				return
 			}
 			result := server.Db.Create(&newPropInfo)
 			if result.Error != nil {
 				fmt.Println("Failed to create new property entry in database")
-				//error
+				Responses.ErrRes(res, http.StatusInternalServerError, err)
 				return
 			}
-			// statusCreated
+			Responses.BasicRes(res, http.StatusCreated, newPropInfo)
 		} else {
 			if newPropInfo.Address != "" {
 				oldPropInfo.Address = newPropInfo.Address
@@ -212,17 +218,17 @@ func (server *Server) UpdateProperty(res http.ResponseWriter, req *http.Request)
 			err = oldPropInfo.Validate()
 			if err != nil {
 				fmt.Println("Invalid input")
-				// Error response
+				Responses.ErrRes(res, http.StatusBadRequest, err)
 				return
 			}
 			err = server.Db.Save(&oldPropInfo).Error
 			if err != nil {
 				fmt.Println("Failed to update property info")
-				// Error message
+				Responses.ErrRes(res, http.StatusInternalServerError, err)
 				return
 			}
+			Responses.BasicRes(res, http.StatusOK, oldPropInfo)
 		}
-		// Status 200 okay message
 	}
 }
 
@@ -233,22 +239,22 @@ func (server *Server) DeleteProperty(res http.ResponseWriter, req *http.Request)
 		pID, err := strconv.Atoi(params["id"])
 		if err != nil {
 			fmt.Println("Invalid input as property ID")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, errors.New("invalid parameters"))
 			return
 		}
 		var propInfo Models.Property
 		err = server.Db.First(&propInfo, pID).Error
 		if err != nil {
 			fmt.Println("Property does not exist")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
 		err = server.Db.Delete(&propInfo, pID).Error
 		if err != nil {
 			fmt.Println("Failed to delete property entry")
-			// Error Response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
+			return
 		}
-
-		// Success response
+		Responses.BasicRes(res, http.StatusOK, "Successfully Deleted")
 	}
 }

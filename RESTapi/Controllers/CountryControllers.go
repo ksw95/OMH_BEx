@@ -2,6 +2,7 @@ package Controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/ksw95/OMH_BEx/RESTapi/Models"
+	"github.com/ksw95/OMH_BEx/RESTapi/Responses"
 )
 
 // Create new Country entry.
@@ -17,28 +19,31 @@ func (server *Server) CreateCountry(res http.ResponseWriter, req *http.Request) 
 		reqBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			fmt.Println("Error reading request body")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
+			return
 		}
 		var newCountry Models.Country
 		err = json.Unmarshal(reqBody, &newCountry)
 		if err != nil {
 			fmt.Println("Error unmarshalling request body")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
+			return
 		}
 		// Sanitize and Validate inputs
 		newCountry.Sanitize()
 		err = newCountry.Validate()
 		if err != nil {
 			fmt.Println("Invalid input")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
+			return
 		}
 		result := server.Db.Create(&newCountry)
 		if result.Error != nil {
 			fmt.Println("Failed to create new country entry in database")
-			//error
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
-		// Status created
+		Responses.BasicRes(res, http.StatusCreated, newCountry)
 	}
 }
 
@@ -49,10 +54,10 @@ func (server *Server) ShowCountries(res http.ResponseWriter, req *http.Request) 
 		err := server.Db.Find(&countries).Error
 		if err != nil {
 			fmt.Println("Countries not found")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
-		// Status 200 with countries info
+		Responses.BasicRes(res, http.StatusOK, countries)
 	}
 }
 
@@ -63,15 +68,17 @@ func (server *Server) ShowCountry(res http.ResponseWriter, req *http.Request) {
 		cID, err := strconv.Atoi(params["id"])
 		if err != nil {
 			fmt.Println("Invalid input")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, errors.New("invalid input"))
 			return
 		}
 		var country Models.Country
 		err = server.Db.First(&country, cID).Error
 		if err != nil {
 			fmt.Println("No country found")
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
+			return
 		}
-		// status response with country info
+		Responses.BasicRes(res, http.StatusOK, country)
 	}
 }
 
@@ -82,7 +89,7 @@ func (server *Server) UpdateCountry(res http.ResponseWriter, req *http.Request) 
 		cID, err := strconv.Atoi(params["id"])
 		if err != nil {
 			fmt.Println("Invalid input")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, errors.New("invalid input"))
 			return
 		}
 		new := 0
@@ -95,13 +102,16 @@ func (server *Server) UpdateCountry(res http.ResponseWriter, req *http.Request) 
 		reqBody, err := ioutil.ReadAll(req.Body)
 		if err != nil {
 			fmt.Println("Error reading request body")
-			// Error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
+			return
 		}
 
 		var newCountryInfo Models.Country
 		err = json.Unmarshal(reqBody, &newCountryInfo)
 		if err != nil {
 			fmt.Println("Error unmarshalling request body")
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
+			return
 		}
 
 		// Sanitize and Validate the inputs
@@ -109,28 +119,29 @@ func (server *Server) UpdateCountry(res http.ResponseWriter, req *http.Request) 
 		err = newCountryInfo.Validate()
 		if err != nil {
 			fmt.Println("Invalid input")
-			// Error response
+			Responses.ErrRes(res, http.StatusBadRequest, err)
+			return
 		}
 
 		if new == 1 {
 			result := server.Db.Create(&newCountryInfo)
 			if result.Error != nil {
 				fmt.Println("Failed to create new country entry in database")
-				//error
+				Responses.ErrRes(res, http.StatusInternalServerError, err)
 				return
 			}
+			Responses.BasicRes(res, http.StatusOK, newCountryInfo)
 		} else {
 			country.Country = newCountryInfo.Country
 			err = server.Db.Save(&country).Error
 			if err != nil {
 				fmt.Println("Failed to update property info")
-				// Error message
+				Responses.ErrRes(res, http.StatusInternalServerError, err)
 				return
 			}
+			Responses.BasicRes(res, http.StatusOK, country)
 		}
-		// status ok
 	}
-	// status not found
 }
 
 // Delete country entry from database.
@@ -140,20 +151,22 @@ func (server *Server) DeleteCountry(res http.ResponseWriter, req *http.Request) 
 		cID, err := strconv.Atoi(params["id"])
 		if err != nil {
 			fmt.Println("Invalid input")
+			Responses.ErrRes(res, http.StatusInternalServerError, errors.New("invalid input"))
+			return
 		}
 		var country Models.Country
 		err = server.Db.Find(&country, cID).Error
 		if err != nil {
 			fmt.Println("Country does not exist")
-			// error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
 		err = server.Db.Delete(&country, cID).Error
 		if err != nil {
 			fmt.Println("Failed to delete country entry")
-			// error response
+			Responses.ErrRes(res, http.StatusInternalServerError, err)
 			return
 		}
-		// status 200 ok
+		Responses.BasicRes(res, http.StatusOK, "Deleted successfully")
 	}
 }
