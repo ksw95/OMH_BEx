@@ -17,12 +17,12 @@ func GetDb() *gorm.DB {
 	DbPort := os.Getenv("MYSQL_PORT")
 	DbUser := os.Getenv("MYSQL_USER")
 	DbPassword := os.Getenv("MYSQL_PASSWORD")
-	DbName := os.Getenv("MYSQL_DBNAME)")
+	DbName := os.Getenv("MYSQL_DBNAME")
 
 	// Build Database source string
 	DbSource := DbUser + ":" + DbPassword + "@tcp(" + DbHost + ":" + DbPort + ")/" + DbName +
 		"?charset=utf8&parseTime=True&loc=Local"
-
+	fmt.Println(DbSource)
 	Db, err := gorm.Open(DbDriver, DbSource)
 	if err != nil {
 		fmt.Printf("Cannot connect to %s database\n", DbDriver)
